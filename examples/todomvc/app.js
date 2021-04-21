@@ -33,7 +33,25 @@ var filters = {
     })
   }
 }
-
+Vue.component('button-counter', {
+  data: function () {
+    return {
+      count: 10
+    }
+  },
+  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>',
+  activated() {
+    console.log(this, '2')
+  }
+})
+Vue.component('button-counter1', {
+  data: function () {
+    return {
+      count: 0
+    }
+  },
+  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
+})
 // app Vue instance
 var app = new Vue({
   // app initial state
@@ -41,9 +59,23 @@ var app = new Vue({
     todos: todoStorage.fetch(),
     newTodo: '',
     editedTodo: null,
-    visibility: 'all'
+    visibility: 'all',
+    items: ['button-counter'],
+    visible: true,
+    key: 'button1'
   },
+  mounted() {
+    setTimeout(() => {
+      // this.items = ['button-counter']
+      this.visible = false
+      this.key = 'button2'
+    }, 3000)
+    setTimeout(() => {
+      // this.items = ['button-counter']
+      this.visible = true
+    }, 6000)
 
+  },
   // watch todos change for localStorage persistence
   watch: {
     todos: {
@@ -140,7 +172,7 @@ var app = new Vue({
 })
 
 // handle routing
-function onHashChange () {
+function onHashChange() {
   var visibility = window.location.hash.replace(/#\/?/, '')
   if (filters[visibility]) {
     app.visibility = visibility

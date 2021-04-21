@@ -1,3 +1,4 @@
+// 引入vue实例
 import Vue from './instance/index'
 import { initGlobalAPI } from './global-api/index'
 import { isServerRendering } from 'core/util/env'
@@ -10,7 +11,7 @@ Object.defineProperty(Vue.prototype, '$isServer', {
 })
 
 Object.defineProperty(Vue.prototype, '$ssrContext', {
-  get () {
+  get() {
     /* istanbul ignore next */
     return this.$vnode && this.$vnode.ssrContext
   }

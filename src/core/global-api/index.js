@@ -18,7 +18,7 @@ import {
   defineReactive
 } from '../util/index'
 
-export function initGlobalAPI (Vue: GlobalAPI) {
+export function initGlobalAPI(Vue: GlobalAPI) {
   // config
   const configDef = {}
   configDef.get = () => config
@@ -53,8 +53,8 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   Vue.options = Object.create(null)
   ASSET_TYPES.forEach(type => {
-    Vue.options[type + 's'] = Object.create(null)
-  })
+      Vue.options[type + 's'] = Object.create(null)
+    })
 
   // this is used to identify the "base" constructor to extend all plain-object
   // components with in Weex's multi-instance scenarios.
