@@ -246,7 +246,7 @@ function createComputedGetter(key) {
     if (watcher) {
       // 如果依赖有改变，就重新计算得到value，不然就复用之前保存的结果
       if (watcher.dirty) {
-        //     this.value = this.get()
+        // this.value = this.get()
         // this.dirty = false
         watcher.evaluate()
       }
