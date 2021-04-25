@@ -41,16 +41,17 @@ Vue.component('button-counter', {
   },
   template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>',
   activated() {
-    console.log(this, '2')
+    console.log('2')
   }
 })
 Vue.component('button-counter1', {
   data: function () {
     return {
-      count: 0
+      count: 0,
+      hidden: false
     }
   },
-  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
+  template: '<button v-on:click="count++; hidden= true">You clicked me <span v-if="hidden"> sdf</span> {{ count }} times.</button>'
 })
 // app Vue instance
 var app = new Vue({
@@ -70,17 +71,22 @@ var app = new Vue({
       this.visible = false
       this.key = 'button2'
     }, 3000)
-    setTimeout(() => {
-      // this.items = ['button-counter']
-      this.visible = true
-    }, 6000)
+    // setTimeout(() => {
+    //   // this.items = ['button-counter']
+    //   this.visible = true
+    // }, 6000)
 
+  },
+  computed: {
+    keyName() {
+      return this.key + '156'
+    }
   },
   // watch todos change for localStorage persistence
   watch: {
-    todos: {
+    key: {
       handler: function (todos) {
-        todoStorage.save(todos)
+        //
       },
       deep: true
     }
@@ -88,24 +94,24 @@ var app = new Vue({
 
   // computed properties
   // https://vuejs.org/guide/computed.html
-  computed: {
-    filteredTodos: function () {
-      return filters[this.visibility](this.todos)
-    },
-    remaining: function () {
-      return filters.active(this.todos).length
-    },
-    allDone: {
-      get: function () {
-        return this.remaining === 0
-      },
-      set: function (value) {
-        this.todos.forEach(function (todo) {
-          todo.completed = value
-        })
-      }
-    }
-  },
+  // computed: {
+  //   filteredTodos: function () {
+  //     return filters[this.visibility](this.todos)
+  //   },
+  //   remaining: function () {
+  //     return filters.active(this.todos).length
+  //   },
+  //   allDone: {
+  //     get: function () {
+  //       return this.remaining === 0
+  //     },
+  //     set: function (value) {
+  //       this.todos.forEach(function (todo) {
+  //         todo.completed = value
+  //       })
+  //     }
+  //   }
+  // },
 
   filters: {
     pluralize: function (n) {

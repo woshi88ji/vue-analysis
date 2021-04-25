@@ -2,8 +2,8 @@
 
 import { ASSET_TYPES } from 'shared/constants'
 import { isPlainObject, validateComponentName } from '../util/index'
-
-export function initAssetRegisters (Vue: GlobalAPI) {
+// 给component， filter， directive 属性绑定初始化函数
+export function initAssetRegisters(Vue: GlobalAPI) {
   /**
    * Create asset registration methods.
    */
@@ -13,10 +13,12 @@ export function initAssetRegisters (Vue: GlobalAPI) {
       definition: Function | Object
     ): Function | Object | void {
       if (!definition) {
+        // 如果没有添加定义函数，返回该属性
         return this.options[type + 's'][id]
       } else {
         /* istanbul ignore if */
         if (process.env.NODE_ENV !== 'production' && type === 'component') {
+          // 如果是 component， 则校验则名称是否符合规范 
           validateComponentName(id)
         }
         if (type === 'component' && isPlainObject(definition)) {

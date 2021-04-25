@@ -13,10 +13,8 @@ function getComponentName(opts: ?VNodeComponentOptions): ?string {
 // 匹配名称，支持 数组，字符串和正则
 function matches(pattern: string | RegExp | Array<string>, name: string): boolean {
   if (Array.isArray(pattern)) {
-
     return pattern.indexOf(name) > -1
   } else if (typeof pattern === 'string') {
-
     return pattern.split(',').indexOf(name) > -1
   } else if (isRegExp(pattern)) {
     return pattern.test(name)
@@ -134,7 +132,7 @@ export default {
         cache[key] = vnode
         keys.push(key)
         // prune oldest entry
-        // 如果keep-alive组件设置了max属性， 并且 缓存的keys的长度大于max，会将最后存入的实例清除掉
+        // 如果keep-alive组件设置了max属性， 并且 缓存的keys的长度大于max，会将最先存入的实例清除掉
         if (this.max && keys.length > parseInt(this.max)) {
           pruneCacheEntry(cache, keys[0], keys, this._vnode)
         }
