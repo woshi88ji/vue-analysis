@@ -13,14 +13,14 @@
 </head>
 
 <body>
-  <section class="todoapp">
+  <section id="todoapp">
     <keep-alive :include='items' max='1'>
       <button-counter v-if='visible'></button-counter>
     </keep-alive>
     <button-counter1 v-if='!visible'></button-counter1>
     {{keyName}}
   </section>
-
+  <div id='id'>1233</div>
   <script>
     // for testing
     if (navigator.userAgent.indexOf('PhantomJS') > -1) localStorage.clear()

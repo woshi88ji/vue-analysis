@@ -55,6 +55,7 @@ Vue.component('button-counter1', {
 })
 // app Vue instance
 var app = new Vue({
+  template: '<div>sfdsfsdfsdsd</div>',
   // app initial state
   data: {
     todos: todoStorage.fetch(),
@@ -191,5 +192,6 @@ function onHashChange() {
 window.addEventListener('hashchange', onHashChange)
 onHashChange()
 
+let el = document.getElementById('todoapp')
 // mount
-app.$mount('.todoapp')
+app.$mount(el)

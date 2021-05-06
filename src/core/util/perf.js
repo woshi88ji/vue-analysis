@@ -22,3 +22,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 }
+// Performace接口允许访问当前页面性能相关的信息
+// mark（name） 可以理解为打点，获取当前的高精度时间戳
+// measure() 理解为获取两个 mark打点间隔时间长度
+

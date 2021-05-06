@@ -1,24 +1,25 @@
 /* @flow */
-
 import { extend } from 'shared/util'
 import { detectErrors } from './error-detector'
 import { createCompileToFunctionFn } from './to-function'
 
-export function createCompilerCreator (baseCompile: Function): Function {
-  return function createCompiler (baseOptions: CompilerOptions) {
-    function compile (
+export function createCompilerCreator(baseCompile: Function): Function {
+  return function createCompiler(baseOptions: CompilerOptions) {
+    function compile(
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
+      // 复制一个baseOptions的副本
       const finalOptions = Object.create(baseOptions)
       const errors = []
       const tips = []
-
+      // 
       let warn = (msg, range, tip) => {
         (tip ? tips : errors).push(msg)
       }
 
       if (options) {
+        // 将报错信息收集起来
         if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
           // $flow-disable-line
           const leadingSpaceLength = template.match(/^\s*/)[0].length
@@ -26,6 +27,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
           warn = (msg, range, tip) => {
             const data: WarningMessage = { msg }
             if (range) {
+              // 收集编译错误的位置
               if (range.start != null) {
                 data.start = range.start + leadingSpaceLength
               }
@@ -37,10 +39,12 @@ export function createCompilerCreator (baseCompile: Function): Function {
           }
         }
         // merge custom modules
+        // 合并定制的内容到基础options里
         if (options.modules) {
           finalOptions.modules =
             (baseOptions.modules || []).concat(options.modules)
         }
+        // 合并定制的指令到基础options里
         // merge custom directives
         if (options.directives) {
           finalOptions.directives = extend(

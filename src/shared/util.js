@@ -153,6 +153,7 @@ export function hasOwn(obj: Object | Array<*>, key: string): boolean {
 /**
  * Create a cached version of a pure function.
  */
+// 传入一个函数，利用闭包，进行缓存，如果没有缓存值，调用传入的函数，将执行结果缓存起来。
 export function cached<F: Function>(fn: F): F {
   const cache = Object.create(null)
   return (function cachedFn(str: string) {
@@ -231,6 +232,7 @@ export function toArray(list: any, start?: number): Array<any> {
 /**
  * Mix properties into target object.
  */
+// 向目标对象添加属性进去
 export function extend(to: Object, _from: ?Object): Object {
   for (const key in _from) {
     to[key] = _from[key]

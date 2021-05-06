@@ -8,8 +8,8 @@ type CompiledFunctionResult = {
   render: Function;
   staticRenderFns: Array<Function>;
 };
-
-function createFunction (code, errors) {
+// 创建一个函数
+function createFunction(code, errors) {
   try {
     return new Function(code)
   } catch (err) {
@@ -18,19 +18,23 @@ function createFunction (code, errors) {
   }
 }
 
-export function createCompileToFunctionFn (compile: Function): Function {
+export function createCompileToFunctionFn(compile: Function): Function {
+  // 生成一个空对象
   const cache = Object.create(null)
 
-  return function compileToFunctions (
+  return function compileToFunctions(
     template: string,
     options?: CompilerOptions,
     vm?: Component
   ): CompiledFunctionResult {
+    // 浅复制options对象
     options = extend({}, options)
+    // warn 是
     const warn = options.warn || baseWarn
     delete options.warn
 
     /* istanbul ignore if */
+    // 报错信息
     if (process.env.NODE_ENV !== 'production') {
       // detect possible CSP restriction
       try {
@@ -49,9 +53,11 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // check cache
+    // delimiters 替换掉默认的 {{}}， 改变纯文本插入分隔符。
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
+
     if (cache[key]) {
       return cache[key]
     }

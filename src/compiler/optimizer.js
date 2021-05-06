@@ -18,7 +18,9 @@ const genStaticKeysCached = cached(genStaticKeys)
  *    create fresh nodes for them on each re-render;
  * 2. Completely skip them in the patching process.
  */
-export function optimize (root: ?ASTElement, options: CompilerOptions) {
+// 优化ast树，对静态节点进行标记
+export function optimize(root: ?ASTElement, options: CompilerOptions) {
+  // 没有根节点，直接返回
   if (!root) return
   isStaticKey = genStaticKeysCached(options.staticKeys || '')
   isPlatformReservedTag = options.isReservedTag || no
@@ -28,14 +30,14 @@ export function optimize (root: ?ASTElement, options: CompilerOptions) {
   markStaticRoots(root, false)
 }
 
-function genStaticKeys (keys: string): Function {
+function genStaticKeys(keys: string): Function {
   return makeMap(
     'type,tag,attrsList,attrsMap,plain,parent,children,attrs,start,end,rawAttrsMap' +
     (keys ? ',' + keys : '')
   )
 }
 
-function markStatic (node: ASTNode) {
+function markStatic(node: ASTNode) {
   node.static = isStatic(node)
   if (node.type === 1) {
     // do not make component slot content static. this avoids
@@ -67,7 +69,7 @@ function markStatic (node: ASTNode) {
   }
 }
 
-function markStaticRoots (node: ASTNode, isInFor: boolean) {
+function markStaticRoots(node: ASTNode, isInFor: boolean) {
   if (node.type === 1) {
     if (node.static || node.once) {
       node.staticInFor = isInFor
@@ -96,14 +98,18 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
     }
   }
 }
-
-function isStatic (node: ASTNode): boolean {
+// 判断是否是静态节点
+function isStatic(node: ASTNode): boolean {
+  // node.type为2时，表示该节点是一个表达式，非静态
   if (node.type === 2) { // expression
     return false
   }
+  // node.type为3时，表示该节点是一个文本节点，是静态
   if (node.type === 3) { // text
     return true
   }
+  // 如果v-pre属性为true，说明是静态资源
+  // 
   return !!(node.pre || (
     !node.hasBindings && // no dynamic bindings
     !node.if && !node.for && // not v-if or v-for or v-else
@@ -113,8 +119,8 @@ function isStatic (node: ASTNode): boolean {
     Object.keys(node).every(isStaticKey)
   ))
 }
-
-function isDirectChildOfTemplateFor (node: ASTElement): boolean {
+// 判断是否是
+function isDirectChildOfTemplateFor(node: ASTElement): boolean {
   while (node.parent) {
     node = node.parent
     if (node.tag !== 'template') {
