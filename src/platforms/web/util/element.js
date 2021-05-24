@@ -30,26 +30,27 @@ export const isSVG = makeMap(
   'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view',
   true
 )
-
+// 是否是pre标签
 export const isPreTag = (tag: ?string): boolean => tag === 'pre'
-
+// 是否是html标签或者是svg
 export const isReservedTag = (tag: string): ?boolean => {
   return isHTMLTag(tag) || isSVG(tag)
 }
-
-export function getTagNamespace (tag: string): ?string {
+// 获取标签名称
+export function getTagNamespace(tag: string): ?string {
   if (isSVG(tag)) {
     return 'svg'
   }
   // basic support for MathML
   // note it doesn't support other MathML elements being component roots
+  // math标签是一种专门用于展示数字的标签
   if (tag === 'math') {
     return 'math'
   }
 }
 
 const unknownElementCache = Object.create(null)
-export function isUnknownElement (tag: string): boolean {
+export function isUnknownElement(tag: string): boolean {
   /* istanbul ignore if */
   if (!inBrowser) {
     return true

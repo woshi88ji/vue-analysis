@@ -55,16 +55,17 @@ Vue.component('button-counter1', {
 })
 // app Vue instance
 var app = new Vue({
-  template: '<div>sfdsfsdfsdsd</div>',
   // app initial state
   data: {
-    todos: todoStorage.fetch(),
-    newTodo: '',
-    editedTodo: null,
-    visibility: 'all',
-    items: ['button-counter'],
-    visible: true,
-    key: 'button1'
+    // todos: todoStorage.fetch(),
+    // newTodo: '',
+    // editedTodo: null,
+    // visibility: 'all',
+    // items: ['button-counter'],
+    // visible: true,
+    // key: 'button1'
+    arr: [1, 2, 3],
+    name: 'name'
   },
   mounted() {
     setTimeout(() => {
@@ -115,8 +116,11 @@ var app = new Vue({
   // },
 
   filters: {
-    pluralize: function (n) {
-      return n === 1 ? 'item' : 'items'
+    get(val) {
+      return val.filter(item => item > 2)
+    },
+    classNameGet(val) {
+      return 'other-name'
     }
   },
 

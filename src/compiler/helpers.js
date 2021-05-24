@@ -6,12 +6,12 @@ import { parseFilters } from './parser/filter-parser'
 type Range = { start?: number, end?: number };
 
 /* eslint-disable no-unused-vars */
-export function baseWarn (msg: string, range?: Range) {
+export function baseWarn(msg: string, range?: Range) {
   console.error(`[Vue compiler]: ${msg}`)
 }
 /* eslint-enable no-unused-vars */
 
-export function pluckModuleFunction<F: Function> (
+export function pluckModuleFunction<F: Function>(
   modules: ?Array<Object>,
   key: string
 ): Array<F> {
@@ -19,13 +19,13 @@ export function pluckModuleFunction<F: Function> (
     ? modules.map(m => m[key]).filter(_ => _)
     : []
 }
-
-export function addProp (el: ASTElement, name: string, value: string, range?: Range, dynamic?: boolean) {
+// 添加prop
+export function addProp(el: ASTElement, name: string, value: string, range?: Range, dynamic?: boolean) {
   (el.props || (el.props = [])).push(rangeSetItem({ name, value, dynamic }, range))
   el.plain = false
 }
 
-export function addAttr (el: ASTElement, name: string, value: any, range?: Range, dynamic?: boolean) {
+export function addAttr(el: ASTElement, name: string, value: any, range?: Range, dynamic?: boolean) {
   const attrs = dynamic
     ? (el.dynamicAttrs || (el.dynamicAttrs = []))
     : (el.attrs || (el.attrs = []))
@@ -34,12 +34,12 @@ export function addAttr (el: ASTElement, name: string, value: any, range?: Range
 }
 
 // add a raw attr (use this in preTransforms)
-export function addRawAttr (el: ASTElement, name: string, value: any, range?: Range) {
+export function addRawAttr(el: ASTElement, name: string, value: any, range?: Range) {
   el.attrsMap[name] = value
   el.attrsList.push(rangeSetItem({ name, value }, range))
 }
 
-export function addDirective (
+export function addDirective(
   el: ASTElement,
   name: string,
   rawName: string,
@@ -60,13 +60,13 @@ export function addDirective (
   el.plain = false
 }
 
-function prependModifierMarker (symbol: string, name: string, dynamic?: boolean): string {
+function prependModifierMarker(symbol: string, name: string, dynamic?: boolean): string {
   return dynamic
     ? `_p(${name},"${symbol}")`
     : symbol + name // mark the event as captured
 }
 
-export function addHandler (
+export function addHandler(
   el: ASTElement,
   name: string,
   value: string,
@@ -149,7 +149,7 @@ export function addHandler (
   el.plain = false
 }
 
-export function getRawBindingAttr (
+export function getRawBindingAttr(
   el: ASTElement,
   name: string
 ) {
@@ -157,16 +157,18 @@ export function getRawBindingAttr (
     el.rawAttrsMap['v-bind:' + name] ||
     el.rawAttrsMap[name]
 }
-
-export function getBindingAttr (
+// 获取绑定的动态属性的值，最后一个参数为true时，用于获取静态属性的值
+export function getBindingAttr(
   el: ASTElement,
   name: string,
   getStatic?: boolean
 ): ?string {
+  // 兼容动态属性的两种写法
   const dynamicValue =
     getAndRemoveAttr(el, ':' + name) ||
     getAndRemoveAttr(el, 'v-bind:' + name)
   if (dynamicValue != null) {
+    // 
     return parseFilters(dynamicValue)
   } else if (getStatic !== false) {
     const staticValue = getAndRemoveAttr(el, name)
@@ -180,7 +182,8 @@ export function getBindingAttr (
 // doesn't get processed by processAttrs.
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
-export function getAndRemoveAttr (
+// 
+export function getAndRemoveAttr(
   el: ASTElement,
   name: string,
   removeFromMap?: boolean
@@ -201,7 +204,7 @@ export function getAndRemoveAttr (
   return val
 }
 
-export function getAndRemoveAttrByRegex (
+export function getAndRemoveAttrByRegex(
   el: ASTElement,
   name: RegExp
 ) {
@@ -214,8 +217,8 @@ export function getAndRemoveAttrByRegex (
     }
   }
 }
-
-function rangeSetItem (
+// 编译时，将编译的范围存入item中
+function rangeSetItem(
   item: any,
   range?: { start?: number, end?: number }
 ) {
