@@ -8,7 +8,7 @@ export const isReservedAttr = makeMap('style,class')
 
 // attributes that should be using props for binding
 const acceptValue = makeMap('input,textarea,option,select,progress')
-// 
+// 必须使用prop属性的情况
 export const mustUseProp = (tag: string, type: ?string, attr: string): boolean => {
   return (
     (attr === 'value' && acceptValue(tag)) && type !== 'button' ||

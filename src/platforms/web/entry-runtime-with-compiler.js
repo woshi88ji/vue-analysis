@@ -75,6 +75,7 @@ Vue.prototype.$mount = function (
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,
         delimiters: options.delimiters,
+        // 是否需要展示template中的注释内容
         comments: options.comments
       }, this)
       options.render = render

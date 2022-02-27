@@ -33,13 +33,13 @@ var filters = {
     })
   }
 }
-Vue.component('button-counter', {
+Vue.component('text1', {
   data: function () {
     return {
       count: 10
     }
   },
-  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>',
+  template: '士大  夫  ',
   activated() {
     console.log('2')
   }

@@ -58,7 +58,7 @@ let platformMustUseProp
 let platformGetTagNamespace
 let maybeComponent
 
-// 创建一个ast元素
+// 创建一个ast元素对象
 export function createASTElement(
   tag: string,
   attrs: Array<ASTAttr>,
@@ -89,6 +89,7 @@ export function parse(
   platformIsPreTag = options.isPreTag || no
   // 判断是否必须添加prop属性
   platformMustUseProp = options.mustUseProp || no
+  // 返回 svg 或者 match
   platformGetTagNamespace = options.getTagNamespace || no
   // 是原生html标签或者svg标签
   const isReservedTag = options.isReservedTag || no
@@ -106,7 +107,7 @@ export function parse(
 
   // delimiters 替换掉默认的 {{}}， 改变纯文本插入分隔符。
   delimiters = options.delimiters
-
+  // 
   const stack = []
   const preserveWhitespace = options.preserveWhitespace !== false
   const whitespaceOption = options.whitespace
@@ -118,7 +119,6 @@ export function parse(
   // 抛出错误提示
   function warnOnce(msg, range) {
     if (!warned) {
-      // 不清楚为什么要封装多一层， warned 在当前文件中一直为false
       warned = true
       warn(msg, range)
     }
@@ -177,6 +177,7 @@ export function parse(
     if (element.pre) {
       inVPre = false
     }
+    // 判断是否是pre标签
     if (platformIsPreTag(element.tag)) {
       inPre = false
     }
@@ -229,19 +230,23 @@ export function parse(
     start(tag, attrs, unary, start, end) {
       // check namespace.
       // inherit parent ns if there is one
+      // platformGetTagNamespace 用于获取元素类型，可返回 ‘svg’ 和 'math'两种类型
+      // 如果解析到是svg类型的标签，会打上ns === svg 的标记
       const ns = (currentParent && currentParent.ns) || platformGetTagNamespace(tag)
 
       // handle IE svg bug
       /* istanbul ignore if */
+      // 兼容ie下svg的使用
       if (isIE && ns === 'svg') {
         attrs = guardIESVGBug(attrs)
       }
-
+      // 创建一个ast对象
       let element: ASTElement = createASTElement(tag, attrs, currentParent)
+      // 如果是svg类型，打上标记
       if (ns) {
         element.ns = ns
       }
-
+      // 开发环境下，记录节点的字符位置
       if (process.env.NODE_ENV !== 'production') {
         if (options.outputSourceRange) {
           element.start = start
@@ -251,6 +256,9 @@ export function parse(
             return cumulated
           }, {})
         }
+        // 校验属性名称是否规范，经过测试，发现常规的属性名称如果带有下列的特殊字符，根本就不会走到这一步，会在之前就被拦截，或者是解析错误。
+        // 目前只发现动态插槽可以走到这一步, 根据267行的 attr.name.indexOf('['),也可以看出   
+        // eg：<p v-slot:[<name]>插槽</p>
         attrs.forEach(attr => {
           if (invalidAttributeRE.test(attr.name)) {
             warn(
@@ -264,7 +272,8 @@ export function parse(
           }
         })
       }
-
+      // isForbiddenTag判断标签是否是style或者是script标签并且是js类型
+      // isServerRendering判断是否是服务端渲染
       if (isForbiddenTag(element) && !isServerRendering()) {
         element.forbidden = true
         process.env.NODE_ENV !== 'production' && warn(
@@ -279,13 +288,15 @@ export function parse(
       for (let i = 0; i < preTransforms.length; i++) {
         element = preTransforms[i](element, options) || element
       }
-
+      // 对v-pre指令的处理
       if (!inVPre) {
+        // 如果存在v-pre指令且有值的情况下，inVPre = true
         processPre(element)
         if (element.pre) {
           inVPre = true
         }
       }
+      // 判断是否是pre标签
       if (platformIsPreTag(element.tag)) {
         inPre = true
       }
@@ -306,6 +317,7 @@ export function parse(
       }
 
       if (!unary) {
+        // 如果不是自闭合标签，当前节点是其包含节点的父节点
         currentParent = element
         stack.push(element)
       } else {
@@ -323,16 +335,19 @@ export function parse(
       }
       closeElement(element)
     },
-
+    // 
     chars(text: string, start: number, end: number) {
+      // 没有父节点的情况
       if (!currentParent) {
         if (process.env.NODE_ENV !== 'production') {
           if (text === template) {
+            // 如果组件没有设置根元素，直接写了一个字符串，会报错
             warnOnce(
               'Component template requires a root element, rather than just text.',
               { start }
             )
           } else if ((text = text.trim())) {
+            // 如果在根元素外有文本节点，会报错
             warnOnce(
               `text "${text}" outside root element will be ignored.`,
               { start }
@@ -349,24 +364,36 @@ export function parse(
       ) {
         return
       }
+      // 
       const children = currentParent.children
+      // inPre 判断是否在pre标签里面 
       if (inPre || text.trim()) {
+        // decodeHTMLCached 方法是将字符串进行解码，比如将 ‘&#先6’ => '&'
+        // isTextTag 用来判断父节点是否是script或者是style标签。
         text = isTextTag(currentParent) ? text : decodeHTMLCached(text)
       } else if (!children.length) {
         // remove the whitespace-only node right after an opening tag
+        // 如果组件根元素下,没有文本和标签，或者是根元素开始标签后面有空格，会清除空格
+        // eg: <div>**** *为空格</div> 解析时， **** 会被清除
         text = ''
       } else if (whitespaceOption) {
+        // 2.6版本新增的，用来控制空格如何处理的
+        // 默认值为 preserve元 素标签之间的纯空白文本节点被压缩为一个空格。所有其他空格按原样保留。
+        // 可选值 condense 如果元素标签之间包含新行，则删除仅空白文本节点。否则，它会被压缩为一个空格。非纯空格文本节点内的连续空格被压缩为一个空格。
         if (whitespaceOption === 'condense') {
           // in condense mode, remove the whitespace node if it contains
           // line break, otherwise condense to a single space
           text = lineBreakRE.test(text) ? '' : ' '
+
         } else {
           text = ' '
         }
       } else {
         text = preserveWhitespace ? ' ' : ''
       }
+      // 
       if (text) {
+        // 如果不在pre标签中，且 whitespaceOption为condense，将文本中的多个连续空格、换行等压缩成一个空格
         if (!inPre && whitespaceOption === 'condense') {
           // condense consecutive whitespaces into single space
           text = text.replace(whitespaceRE, ' ')
@@ -395,6 +422,7 @@ export function parse(
         }
       }
     },
+    // 解析到注释时的处理，打上注释标记 isComment:true, 然后推入到children中
     comment(text: string, start, end) {
       // adding anything as a sibling to the root node is forbidden
       // comments should still be allowed, but ignored
@@ -414,13 +442,13 @@ export function parse(
   })
   return root
 }
-
+// 处理pre指令，如果存在v-pre指令且有值， 给元素打上标记 el.pre = true
 function processPre(el) {
   if (getAndRemoveAttr(el, 'v-pre') != null) {
     el.pre = true
   }
 }
-
+// 处理未加工的atts数组
 function processRawAttrs(el) {
   const list = el.attrsList
   const len = list.length
@@ -928,7 +956,8 @@ function parseModifiers(name: string): Object | void {
   }
 }
 
-// 将元素上的属性放到一个对象里
+// 元素上的属性第一步解析时是存放在一个数组里，为了方便后续使用，将属性的name，value通过键值对放到同一个对象中
+// eg: [{name: id, value: 'app', start: 12, end: 19}] => {id: 'app'}
 function makeAttrsMap(attrs: Array<Object>): Object {
   const map = {}
   for (let i = 0, l = attrs.length; i < l; i++) {
@@ -948,7 +977,7 @@ function makeAttrsMap(attrs: Array<Object>): Object {
 function isTextTag(el): boolean {
   return el.tag === 'script' || el.tag === 'style'
 }
-
+// 判断标签是否是style或者是script标签并且是js类型
 function isForbiddenTag(el): boolean {
   return (
     el.tag === 'style' ||
